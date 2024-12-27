@@ -1,132 +1,222 @@
-#include <stdio.h>
+<!DOCTYPE html>
 
-#include <stdlib.h>
+<html lang="en">
 
-#include <time.h>
+<head>
 
+ <meta charset="UTF-8">
 
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-void quickSort(int arr[], int low, int high);
+ <title>Ajax Demo Program</title>
 
-int partition(int arr[], int low, int high);
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
-void swap(int *a, int *b);
+ <style>
 
-void generateRandomArray(int arr[], int n);
+ body {
 
-double calculateTimeTaken(clock_t start, clock_t end);
+ font-family: Arial, sans-serif;
 
-int main() {
+ line-height: 1.6;
 
- int n_values[] = {5000, 10000, 15000, 20000}; 
+ margin: 0;
 
- int num_values = sizeof(n_values) / sizeof(n_values[0]);
+ padding: 20px;
+background-color: #f4f4f4;
 
- clock_t start, end;
+ }
 
- double time_taken[num_values];
+ .container {
 
- for (int i = 0; i < num_values; i++) {
+ max-width: 800px;
 
- int n = n_values[i];
+ margin: auto;
 
- int *arr = (int*)malloc(n * sizeof(int));
+ background: white;
 
- generateRandomArray(arr, n);
+ padding: 20px;
 
- start = clock();
+ border-radius: 5px;
 
- quickSort(arr, 0, n - 1);
+ box-shadow: 0 0 10px rgba(0,0,0,0.1);
 
- end = clock();
+ }
 
- time_taken[i] = calculateTimeTaken(start, end);
+ h1 {
 
- free(arr);
- }
+ color: #333;
 
+ }
 
+ h2 {
 
- printf("n\tTime Taken (s)\n");
+color: #666;
 
- for (int i = 0; i < num_values; i++) {
+ }
 
- printf("%d\t%f\n", n_values[i], time_taken[i]);
+ button {
 
- }
+ background-color: #4CAF50;
 
+ border: none;
 
+ color: white;
 
- return 0;
+ padding: 10px 20px;
+
+ text-align: center;
+
+ text-decoration: none;
+
+ display: inline-block;
+
+ font-size: 16px;
+
+ margin: 4px 2px;
+
+ cursor: pointer;
+
+ border-radius: 4px;
+
+ }
+
+ pre {
+
+ background-color: #f8f8f8;
+
+ border: 1px solid #ddd;
+
+ border-radius: 4px;
+
+ padding: 10px;
+
+ white-space: pre-wrap;
+
+ word-wrap: break-word;
+
+ }
+
+ </style>
+
+</head>
+
+<body>
+
+ <div class="container">
+
+ <h1>Ajax Demo Program</h1>
+
+ <h2>a. Ajax-like operation without jQuery</h2>
+
+ <button onclick="operationWithoutJQuery()">Perform Operation (without jQuery)</button>
+
+<pre id="result-a"></pre>
+
+ <h2>b. Ajax-like operation with jQuery</h2>
+<button onclick="operationWithJQuery()">Perform Operation (with jQuery)</button>
+
+ <pre id="result-b"></pre>
+
+ <h2>c. jQuery-like getJSON() method</h2>
+
+ <button onclick="getJSONOperation()">Get JSON</button>
+
+ <pre id="result-c"></pre>
+
+ <h2>d. jQuery parseJSON() method</h2>
+
+ <button onclick="parseJSONExample()">Parse JSON</button>
+
+ <pre id="result-d"></pre>
+
+ </div>
+
+ <script>
+
+ // Simulated data
+
+ const simulatedData = {
+
+ text: "This is a sample text from a simulated server response.",
+
+ json: {
+
+ name: "John Doe",
+
+ age: 30,
+
+ city: "New York"
+
+ }
+
+ };
+
+ // a. Ajax-like operation without jQuery
+
+ function operationWithoutJQuery() {
+
+ setTimeout(function() {
+
+ document.getElementById("result-a").textContent = simulatedData.text;
+
+ }, 500);
 
 }
 
+ // b. Ajax-like operation with jQuery
 
-void quickSort(int arr[], int low, int high) {
+ function operationWithJQuery() {
 
- if (low < high) {
+ $.Deferred(function(deferred) {
 
- int pi = partition(arr, low, high);
+ setTimeout(function() {
 
- quickSort(arr, low, pi - 1);
+ deferred.resolve(simulatedData.text);
 
- quickSort(arr, pi + 1, high);
+ }, 500);
 
- }
+ }).done(function(result) {
 
-}
+ $("#result-b").text(result);
 
+ });
 
+ }
 
-int partition(int arr[], int low, int high) {
+ // c. jQuery-like getJSON() method
 
- int pivot = arr[high];
+ function getJSONOperation() {
 
- int i = low - 1;
+ $.Deferred(function(deferred) {
 
- for (int j = low; j < high; j++) {
+ setTimeout(function() {
 
- if (arr[j] <= pivot) {
+ deferred.resolve(simulatedData.json);
 
- i++;
+ }, 500);
 
- swap(&arr[i], &arr[j]);
+ }).done(function(result) {
 
- }
+ $("#result-c").text(JSON.stringify(result, null, 2));
 
- }
- swap(&arr[i + 1], &arr[high]);
+ });
 
- return (i + 1);
+ }
 
-}
+ // d. jQuery parseJSON() method
+function parseJSONExample() {
 
+ var jsonString = JSON.stringify(simulatedData.json);
 
+ var jsonObject = $.parseJSON(jsonString);
 
-void swap(int *a, int *b) {
+ $("#result-d").text(JSON.stringify(jsonObject, null, 2));
 
- int temp = *a;
+ }
 
- *a = *b;
+ </script>
 
- *b = temp;
-}
+</body>
 
-void generateRandomArray(int arr[], int n) {
-
- srand(time(NULL));
-
- for (int i = 0; i < n; i++) {
-
- arr[i] = rand();
-
- }
-
-}
-
-
-double calculateTimeTaken(clock_t start, clock_t end) {
-
- return ((double)(end - start)) / CLOCKS_PER_SEC;
-
-}
+</html>
