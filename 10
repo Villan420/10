@@ -1,222 +1,171 @@
-<!DOCTYPE html>
+ApiDataFetcher.js
 
-<html lang="en">
+import React, { Component } from 'react';
 
-<head>
+class ApiDataFetcher extends Component {
 
- <meta charset="UTF-8">
+constructor(props) {
 
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
+super(props);
 
- <title>Ajax Demo Program</title>
+this.state = {
 
- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+data: [],
 
- <style>
+filteredData: [],
 
- body {
+loading: true,
 
- font-family: Arial, sans-serif;
+error: null,
 
- line-height: 1.6;
+searchQuery: '',
 
- margin: 0;
-
- padding: 20px;
-background-color: #f4f4f4;
-
- }
-
- .container {
-
- max-width: 800px;
-
- margin: auto;
-
- background: white;
-
- padding: 20px;
-
- border-radius: 5px;
-
- box-shadow: 0 0 10px rgba(0,0,0,0.1);
-
- }
-
- h1 {
-
- color: #333;
-
- }
-
- h2 {
-
-color: #666;
-
- }
-
- button {
-
- background-color: #4CAF50;
-
- border: none;
-
- color: white;
-
- padding: 10px 20px;
-
- text-align: center;
-
- text-decoration: none;
-
- display: inline-block;
-
- font-size: 16px;
-
- margin: 4px 2px;
-
- cursor: pointer;
-
- border-radius: 4px;
-
- }
-
- pre {
-
- background-color: #f8f8f8;
-
- border: 1px solid #ddd;
-
- border-radius: 4px;
-
- padding: 10px;
-
- white-space: pre-wrap;
-
- word-wrap: break-word;
-
- }
-
- </style>
-
-</head>
-
-<body>
-
- <div class="container">
-
- <h1>Ajax Demo Program</h1>
-
- <h2>a. Ajax-like operation without jQuery</h2>
-
- <button onclick="operationWithoutJQuery()">Perform Operation (without jQuery)</button>
-
-<pre id="result-a"></pre>
-
- <h2>b. Ajax-like operation with jQuery</h2>
-<button onclick="operationWithJQuery()">Perform Operation (with jQuery)</button>
-
- <pre id="result-b"></pre>
-
- <h2>c. jQuery-like getJSON() method</h2>
-
- <button onclick="getJSONOperation()">Get JSON</button>
-
- <pre id="result-c"></pre>
-
- <h2>d. jQuery parseJSON() method</h2>
-
- <button onclick="parseJSONExample()">Parse JSON</button>
-
- <pre id="result-d"></pre>
-
- </div>
-
- <script>
-
- // Simulated data
-
- const simulatedData = {
-
- text: "This is a sample text from a simulated server response.",
-
- json: {
-
- name: "John Doe",
-
- age: 30,
-
- city: "New York"
-
- }
-
- };
-
- // a. Ajax-like operation without jQuery
-
- function operationWithoutJQuery() {
-
- setTimeout(function() {
-
- document.getElementById("result-a").textContent = simulatedData.text;
-
- }, 500);
+};
 
 }
 
- // b. Ajax-like operation with jQuery
+componentDidMount() {
 
- function operationWithJQuery() {
+this.fetchData();
 
- $.Deferred(function(deferred) {
+}
 
- setTimeout(function() {
+fetchData = () => {
 
- deferred.resolve(simulatedData.text);
+this.setState({ loading: true });
 
- }, 500);
+fetch('https://jsonplaceholder.typicode.com/posts')
 
- }).done(function(result) {
+.then((response) => response.json())
 
- $("#result-b").text(result);
+.then((data) => {
 
- });
+this.setState({ data, filteredData: data, loading: false });
 
- }
+})
 
- // c. jQuery-like getJSON() method
+.catch((error) => {
 
- function getJSONOperation() {
+this.setState({ error: 'Error fetching data', loading: false });
 
- $.Deferred(function(deferred) {
+});
 
- setTimeout(function() {
+};
 
- deferred.resolve(simulatedData.json);
+componentDidUpdate(prevProps, prevState) {
 
- }, 500);
+if (prevState.searchQuery !== this.state.searchQuery) {
 
- }).done(function(result) {
+this.filterData();
 
- $("#result-c").text(JSON.stringify(result, null, 2));
+}
 
- });
+}
 
- }
+filterData = () => {
 
- // d. jQuery parseJSON() method
-function parseJSONExample() {
+const { data, searchQuery } = this.state;
+const filteredData = data.filter((item) =>
 
- var jsonString = JSON.stringify(simulatedData.json);
+item.title.toLowerCase().includes(searchQuery.toLowerCase())
 
- var jsonObject = $.parseJSON(jsonString);
+);
 
- $("#result-d").text(JSON.stringify(jsonObject, null, 2));
+this.setState({ filteredData });
 
- }
+};
 
- </script>
+handleSearchChange = (event) => {
 
-</body>
+this.setState({ searchQuery: event.target.value });
 
-</html>
+};
+
+handleRefresh = () => {
+
+this.fetchData();
+
+};
+
+render() {
+
+const { filteredData, loading, error, searchQuery } = this.state;
+
+return (
+
+<div className="api-data-fetcher">
+
+<h1>API Data Fetcher</h1>
+
+{loading && <p>Loading...</p>}
+
+{error && <p>{error}</p>}
+
+<input
+
+type="text"
+
+placeholder="Search by title"
+
+value={searchQuery}
+
+onChange={this.handleSearchChange}
+
+/>
+
+<button onClick={this.handleRefresh}>Refresh Data</button>
+
+{filteredData.length > 0 && (
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>ID</th>
+
+<th>Title</th>
+
+<th>Body</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{filteredData.map((item) => (
+
+<tr key={item.id}>
+
+<td>{item.id}</td>
+
+<td>{item.title}</td>
+
+<td>{item.body}</td>
+
+</tr>
+
+))}
+
+</tbody>
+
+</table>
+
+)}
+
+{filteredData.length === 0 && !loading && !error && (
+<p>No results found.</p>
+
+)}
+
+</div>
+
+);
+
+}
+
+}
+
+export default ApiDataFetcher
